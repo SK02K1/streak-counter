@@ -1,10 +1,4 @@
-import { formattedDate } from './utils';
-
-interface Streak {
-  currentCount: number;
-  startDate: string;
-  lastLoginDate: string;
-}
+import { formattedDate, Streak, buildStreak, updateStreak } from './utils';
 
 const KEY = 'streak';
 
@@ -32,7 +26,7 @@ export function streakCounter(storage: Storage, date: Date): Streak {
   const streakInLocalStorage = storage.getItem(KEY);
   if (streakInLocalStorage) {
     try {
-      const streak = JSON.parse(streakInLocalStorage);
+      const streak = JSON.parse(streakInLocalStorage) as Streak;
       const state = shouldIncrementOrResetStreakCount(
         date,
         streak.lastLoginDate
@@ -41,23 +35,19 @@ export function streakCounter(storage: Storage, date: Date): Streak {
       const SHOULD_RESET = state === 'reset';
 
       if (SHOULD_INCREMENT) {
-        const updatedStreak: Streak = {
-          ...streak,
+        const updatedStreak = buildStreak(date, {
+          startDate: streak.startDate,
           currentCount: streak.currentCount + 1,
           lastLoginDate: formattedDate(date),
-        };
+        });
         // store in localStorage
-        storage.setItem(KEY, JSON.stringify(updatedStreak));
+        updateStreak(storage, updatedStreak);
         return updatedStreak;
       }
 
       if (SHOULD_RESET) {
-        const updatedStreak: Streak = {
-          currentCount: 1,
-          startDate: formattedDate(date),
-          lastLoginDate: formattedDate(date),
-        };
-        storage.setItem(KEY, JSON.stringify(updatedStreak));
+        const updatedStreak: Streak = buildStreak(date);
+        updateStreak(storage, updatedStreak);
         return updatedStreak;
       }
 
@@ -67,14 +57,10 @@ export function streakCounter(storage: Storage, date: Date): Streak {
     }
   }
 
-  const streak = {
-    currentCount: 1,
-    startDate: formattedDate(date),
-    lastLoginDate: formattedDate(date),
-  };
+  const streak = buildStreak(date);
 
   // store in localStorage
-  storage.setItem(KEY, JSON.stringify(streak));
+  updateStreak(storage, streak);
 
   return streak;
 }
