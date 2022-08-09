@@ -29,5 +29,8 @@
     "jsdom": "^20.0.0",
     "ts-jest": "^28.0.7",
     "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "microbundle": "^0.15.0"
   }
 }
